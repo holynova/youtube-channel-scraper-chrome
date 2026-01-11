@@ -77,7 +77,7 @@ function parsePublishDate(publishText) {
                     break;
             }
             
-            return date.toISOString().split('T')[0]; // 返回 YYYY-MM-DD 格式
+            return date.toISOString(); // 返回完整的 ISO 8601 格式 (YYYY-MM-DDTHH:mm:ss.sssZ)
         }
     }
     
