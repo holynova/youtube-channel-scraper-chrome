@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YouTube Channel Scraper",
-  "version": "1.0",
+  "version": "1.1.0",
   "description": "抓取当前 YouTube 频道页面的所有视频信息 (标题, 链接, 浏览量, 发布时间, 是否会员).",
   "permissions": ["activeTab", "scripting"],
   "action": {

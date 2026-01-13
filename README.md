@@ -9,9 +9,13 @@ Chrome extension to scrape all video information from a YouTube channel page. It
 
 ## Key Features / 主要功能
 
-- 📜 **Auto-scroll / 自动滚动**: Automatically loads all videos in the channel. | 自动滚动页面加载所有视频。
-- 🔢 **Limit Control / 数量限制**: Set a maximum number of videos to scrape. | 支持设置最大抓取数量。
-- ⏹ **Stop Anytime / 随时停止**: Stop the scraping process at any time and save current data. | 支持随时停止抓取并保存当前已加载的数据。
+- **Auto-Scroll Scraping**: Automatically scrolls to load all videos. / **自动滚动**: 自动加载频道所有视频。
+- **Data Export**: Support copying data as JSON, URL list, or Title-URL pairs. / **多格式导出**: 支持导出 JSON、URL列表或标题-链接对。
+- **Stop & Resume**: Can stop scraping at any time. / **随时停止**: 支持中途停止抓取并保存已加载数据。
+- **Global Sort & Filter**: Sort by Views/Time and Filter by Member status across all views. / **全局排序筛选**: 支持按播放量/时间排序，及会员视频筛选。
+- **Limit Control**: Set maximum number of videos to scrape. / **数量限制**: 可设置最大抓取数量。
+- **Row Actions**: One-click copy for individual video links. / **便捷操作**: 每行提供复制按钮，快速复制视频链接。
+- **Green/White Theme**: Clean and modern UI. / **清新主题**: 全新绿白配色，界面简洁现代。
 - 📊 **Rich Data / 丰富数据**: Extracts Title, URL, Views, Publish Time, Members-only status. | 提取标题、链接、播放量、发布时间、是否会员专享等信息。
 - 📋 **Easy Export / 便捷导出**: Copy formatted JSON or just URLs with one click. | 一键复制格式化的 JSON 数据或纯视频链接列表。
 
