@@ -1,8 +1,12 @@
+var allVideos = [];
+var processedVideos = []; // 存储排序和筛选后的数据
+var activeTab = 'list'; // 当前激活的标签页
+
 document.addEventListener('DOMContentLoaded', () => {
     const btnStart = document.getElementById('btn-start');
     const btnStop = document.getElementById('btn-stop');
     const btnCopy = document.getElementById('btn-copy');
-    const btnCopyUrls = document.getElementById('btn-copy-urls');
+    // const btnCopyUrls = document.getElementById('btn-copy-urls'); // Removed
     const statusDiv = document.getElementById('status');
     const jsonContainer = document.getElementById('json-container');
     const urlOutput = document.getElementById('url-output');
@@ -12,10 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultCount = document.getElementById('result-count');
     const controlsBar = document.getElementById('controls-bar');
     const maxVideosInput = document.getElementById('max-videos');
-
-    // 存储原始数据
-    let allVideos = [];
-    let jsonData = null; // 存储原始JSON用于复制
 
     // 加载保存的设置
     const savedMaxVideos = localStorage.getItem('maxVideos');
@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tabName = button.getAttribute('data-tab');
+            activeTab = tabName; // 更新当前标签页状态
             
             // 切换按钮状态
             tabButtons.forEach(btn => btn.classList.remove('active'));
@@ -101,8 +102,21 @@ document.addEventListener('DOMContentLoaded', () => {
             videos.sort((a, b) => new Date(a.publish_time) - new Date(b.publish_time));
         }
 
-        // 更新显示
+        processedVideos = videos; // 更新处理后的数据全局变量
+
+        // 更新列表显示
         renderVideoList(videos);
+        
+        // 更新 JSON 视图
+        const jsonString = JSON.stringify(videos, null, 2);
+        const highlightedJSON = highlightJSON(jsonString);
+        jsonContainer.innerHTML = '<pre style="margin: 0;">' + highlightedJSON + '</pre>';
+
+        // 更新 URL 列表视图
+        const urls = videos.map(video => video.url).join('\n');
+        urlOutput.value = urls;
+
+        // 更新数量显示
         resultCount.textContent = `显示 ${videos.length} / ${allVideos.length} 个视频`;
     }
 
@@ -128,9 +142,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="meta-item">📅 ${formatDateTime(video.publish_time)}</span>
                         ${membersOnly}
                     </div>
-                    <a class="video-link" href="${escapeHtml(video.url)}" target="_blank" title="${escapeHtml(video.url)}">
-                        ${truncateUrl(video.url)}
-                    </a>
+                    <div class="video-row">
+                         <a class="video-link" href="${escapeHtml(video.url)}" target="_blank" title="${escapeHtml(video.url)}">
+                            ${truncateUrl(video.url)}
+                         </a>
+                         <button class="btn-copy-row" data-url="${escapeHtml(video.url)}" title="复制链接">📋</button>
+                    </div>
                 </div>
             `;
         });
@@ -156,6 +173,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isoString || isoString === 'N/A') return 'N/A';
         
         const date = new Date(isoString);
+        // 检查是否为有效日期
+        if (isNaN(date.getTime())) {
+            return isoString; // 如果无效，返回原始字符串
+        }
+
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
@@ -175,27 +197,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 保存原始数据
             allVideos = data;
-            
-            // 保存JSON用于复制
-            jsonData = JSON.stringify(data, null, 2);
-            
-            // 更新JSON视图（带语法高亮）
-            const highlightedJSON = highlightJSON(data);
-            jsonContainer.innerHTML = '<pre style="margin: 0;">' + highlightedJSON + '</pre>';
-            
-            // 更新URL列表视图
-            const urls = data.map(video => video.url).join('\n');
-            urlOutput.value = urls;
+            processedVideos = data;
             
             // 显示控制栏和按钮
             controlsBar.style.display = 'flex';
-            btnCopyUrls.style.display = 'inline-block';
             
             // 重置筛选和排序
             sortSelect.value = 'views-desc';
             filterSelect.value = 'all';
             
-            // 更新列表视图（应用默认排序）
+            // 更新所有视图
             updateDisplayedVideos();
             
             // 更新状态
@@ -205,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnStop.style.display = "none"; // 隐藏停止按钮
             btnStop.disabled = false; // 恢复停止按钮状态
             btnStart.textContent = "重新抓取";
-            btnCopy.style.display = "block";
+            btnCopy.style.display = "inline-block"; // 显示通用复制按钮
         }
         else if (request.action === "scrape_error") {
             statusDiv.textContent = `❌ 错误: ${request.message}`;
@@ -235,10 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
         urlOutput.value = ""; // 清空URL列表
         resultsList.innerHTML = '<div class="empty-state">正在抓取数据...</div>';
         btnCopy.style.display = "none";
-        btnCopyUrls.style.display = "none"; // 隐藏URL复制按钮
         controlsBar.style.display = "none"; // 隐藏控制栏
         allVideos = []; // 清空数据
-        jsonData = null; // 清空JSON数据
+        processedVideos = [];
 
         // 读取并验证数量限制
         let maxVideos = parseInt(maxVideosInput.value) || 0;
@@ -271,21 +281,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 点击复制JSON按钮
+    // 通用复制按钮逻辑
     btnCopy.addEventListener('click', async () => {
-        if (!jsonData) return;
+        if (!processedVideos || processedVideos.length === 0) return;
         
+        let contentToCopy = '';
+        
+        // 根据当前标签页决定复制内容
+        if (activeTab === 'list') {
+            // 列表格式：标题 - URL
+            contentToCopy = processedVideos.map(v => `${v.title} - ${v.url}`).join('\n');
+        } else if (activeTab === 'json') {
+            // JSON 格式
+            contentToCopy = JSON.stringify(processedVideos, null, 2);
+        } else if (activeTab === 'urls') {
+            // URL 列表格式
+            contentToCopy = processedVideos.map(v => v.url).join('\n');
+        }
+
+        if (!contentToCopy) return;
+
         try {
-            await navigator.clipboard.writeText(jsonData);
+            await navigator.clipboard.writeText(contentToCopy);
             const originalText = btnCopy.textContent;
             btnCopy.textContent = "✅ 已复制！";
             setTimeout(() => {
                 btnCopy.textContent = originalText;
             }, 2000);
         } catch (err) {
-            // 降级到旧方法
+            // 降级方法
             const textarea = document.createElement('textarea');
-            textarea.value = jsonData;
+            textarea.value = contentToCopy;
             document.body.appendChild(textarea);
             textarea.select();
             document.execCommand('copy');
@@ -299,27 +325,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 点击复制URL按钮
-    btnCopyUrls.addEventListener('click', async () => {
-        if (!urlOutput.value) return;
-        
-        try {
-            await navigator.clipboard.writeText(urlOutput.value);
-            const originalText = btnCopyUrls.textContent;
-            btnCopyUrls.textContent = "✅ 已复制！";
-            setTimeout(() => {
-                btnCopyUrls.textContent = originalText;
-            }, 2000);
-        } catch (err) {
-            // 降级到旧方法
-            urlOutput.select();
-            document.execCommand('copy');
-            
-            const originalText = btnCopyUrls.textContent;
-            btnCopyUrls.textContent = "✅ 已复制！";
-            setTimeout(() => {
-                btnCopyUrls.textContent = originalText;
-            }, 2000);
+    // 列表项点击事件委托（处理行复制按钮）
+    resultsList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-copy-row')) {
+            const url = e.target.getAttribute('data-url');
+            if (url) {
+                // 使用 clipboard API 复制
+                navigator.clipboard.writeText(url).then(() => {
+                    // 显示临时反馈
+                    const originalText = e.target.textContent;
+                    e.target.textContent = '✅';
+                    setTimeout(() => {
+                        e.target.textContent = originalText;
+                    }, 1500);
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                });
+            }
         }
     });
 });
