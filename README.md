@@ -1,13 +1,61 @@
-# YouTube 频道视频抓取器
+# YouTube Channel Scraper Extension
 
-一键抓取 YouTube 频道的所有视频信息（标题、链接、播放量、发布时间等），支持排序、筛选和多种导出格式。
+[中文说明](#使用说明) | [English](#usage-guide)
 
-**使用方法**：打开 YouTube 频道的"视频"页面 → 点击扩展图标 → 点击"开始抓取"
+## Introduction / 简介
+
+Chrome extension to scrape all video information from a YouTube channel page. It auto-scrolls to load all videos and exports data to JSON.
+这是一个 Chrome 浏览器扩展，用于一键抓取 YouTube 频道的所有视频信息。它会自动滚动加载所有视频并支持导出为 JSON 格式。
+
+## Key Features / 主要功能
+
+- 📜 **Auto-scroll / 自动滚动**: Automatically loads all videos in the channel. | 自动滚动页面加载所有视频。
+- 🔢 **Limit Control / 数量限制**: Set a maximum number of videos to scrape. | 支持设置最大抓取数量。
+- ⏹ **Stop Anytime / 随时停止**: Stop the scraping process at any time and save current data. | 支持随时停止抓取并保存当前已加载的数据。
+- 📊 **Rich Data / 丰富数据**: Extracts Title, URL, Views, Publish Time, Members-only status. | 提取标题、链接、播放量、发布时间、是否会员专享等信息。
+- 📋 **Easy Export / 便捷导出**: Copy formatted JSON or just URLs with one click. | 一键复制格式化的 JSON 数据或纯视频链接列表。
 
 ---
 
-# YouTube Channel Video Scraper
+## 使用说明
 
-Scrape all video info (title, URL, views, publish time, etc.) from a YouTube channel with one click. Supports sorting, filtering, and multiple export formats.
+### 1. 安装扩展
+1. 下载本项目源代码。
+2. 打开 Chrome 浏览器，进入 `chrome://extensions/`。
+3. 打开右上角的 **开发者模式**。
+4. 点击 **加载已解压的扩展程序**，选择本项目的 `youtube-scraper-extension` 文件夹。
 
-**How to use**: Open a YouTube channel's "Videos" page → Click extension icon → Click "Start Scraping"
+### 2. 如何使用
+1. 打开任意 YouTube 频道的 **"视频 (Videos)"** 页面 (例如 `https://www.youtube.com/@channel/videos`)。
+2. 点击浏览器右上角的扩展图标。
+3. (可选) 在输入框中设置 **抓取数量限制**（0 表示无限制）。
+4. 点击 **"开始抓取"** 按钮。
+5. 页面会自动向下滚动加载视频。
+   - 此时你可以随时点击 **"⏹ 停止抓取"** 按钮来中断过程并获取当前数据。
+6. 抓取完成后，你可以在扩展窗口中：
+   - 预览抓取结果列表。
+   - 使用 **"复制 JSON"** 按钮获取完整数据。
+   - 切换到 "URL列表" 标签页复制所有视频链接。
+
+---
+
+## Usage Guide
+
+### 1. Installation
+1. Download this project source code.
+2. Open Chrome and go to `chrome://extensions/`.
+3. Enable **Developer mode** in the top right.
+4. Click **Load unpacked** and select the `youtube-scraper-extension` folder.
+
+### 2. How to Use
+1. Go to any YouTube Channel's **"Videos"** page (e.g., `https://www.youtube.com/@channel/videos`).
+2. Click the extension icon in the browser toolbar.
+3. (Optional) Set a **Max Videos limit** (0 for unlimited).
+4. Click **"Start Scraping"**.
+5. The page will auto-scroll to load videos.
+   - You can click **"⏹ Stop"** at any time to halt and save current data.
+6. Once finished, you can:
+   - Preview the results list.
+   - Click **"Copy JSON"** to get the full data.
+   - Switch to the "URL List" tab to copy all video links.
+
