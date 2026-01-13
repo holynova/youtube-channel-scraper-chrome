@@ -84,14 +84,25 @@ function parsePublishDate(publishText) {
     return publishText; // 如果无法解析，返回原文
 }
 
+// 全局停止标志
+let shouldStop = false;
+
 // 监听来自 Popup 的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "start_scrape") {
-        scrapeYouTubeVideos();
+        shouldStop = false; // 重置停止标志
+        const maxVideos = request.maxVideos || 0; // 默认0表示无限制
+        scrapeYouTubeVideos(maxVideos);
+    } else if (request.action === "stop_scrape") {
+        shouldStop = true; // 设置停止标志
+        sendResponse({ success: true });
     }
+    return true; // 保持消息通道开放
 });
 
-async function scrapeYouTubeVideos() {
+
+
+async function scrapeYouTubeVideos(maxVideos = 0) {
     // 辅助函数：向 Popup 发送状态更新
     const reportStatus = (msg) => {
         chrome.runtime.sendMessage({ action: "update_status", message: msg }).catch(() => {
@@ -99,10 +110,19 @@ async function scrapeYouTubeVideos() {
         });
     };
 
-    // 辅助函数：等待
-    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    // 辅助函数：可中断的等待（每100ms检查一次停止标志）
+    const wait = async (ms) => {
+        const interval = 100;
+        let elapsed = 0;
+        while (elapsed < ms) {
+            if (shouldStop) return; // 如果收到停止信号，立即返回
+            await new Promise(resolve => setTimeout(resolve, interval));
+            elapsed += interval;
+        }
+    };
 
-    reportStatus("🚀 开始抓取... 正在自动滚动加载视频...");
+    const limitText = maxVideos > 0 ? ` (限制${maxVideos}个)` : '';
+    reportStatus(`🚀 开始抓取${limitText}... 正在自动滚动加载视频...`);
 
     // ---------------------------------------------------------
     // 1. 自动滚动逻辑
@@ -112,23 +132,37 @@ async function scrapeYouTubeVideos() {
 
     try {
         while (true) {
+            // 检查停止标志
+            if (shouldStop) {
+                reportStatus(`⏹ 用户停止抓取 (当前已加载 ${document.querySelectorAll('ytd-rich-grid-media').length} 个视频)`);
+                break;
+            }
+            
             window.scrollTo(0, document.documentElement.scrollHeight);
             
             // 每次滚动后等待 2 秒
             await wait(2000); 
 
+            // 检查当前已加载的视频数量
+            const currentCount = document.querySelectorAll('ytd-rich-grid-media').length;
+            
+            // 如果设置了限制且已达到限制，提前退出
+            if (maxVideos > 0 && currentCount >= maxVideos) {
+                reportStatus(`✅ 已达到设置的数量限制 (${maxVideos}个视频)`);
+                break;
+            }
+
             let newHeight = document.documentElement.scrollHeight;
             if (newHeight === lastHeight) {
                 noChangeCount++;
-                reportStatus(`⏳ 正在检查底部... (${noChangeCount}/3)`);
+                reportStatus(`⏳ 正在检查底部... (${noChangeCount}/3)${limitText}`);
                 
                 if (noChangeCount >= 3) break; // 连续3次没有新内容，停止滚动
             } else {
                 noChangeCount = 0;
                 lastHeight = newHeight;
                 // 计算当前已加载的大致元素数量来反馈进度
-                const count = document.querySelectorAll('ytd-rich-grid-media').length;
-                reportStatus(`⬇️ 已加载更多... (当前约 ${count} 个视频)`);
+                reportStatus(`⬇️ 已加载更多... (当前约 ${currentCount} 个视频)${limitText}`);
             }
         }
     } catch (err) {
@@ -136,15 +170,25 @@ async function scrapeYouTubeVideos() {
         return;
     }
 
-    reportStatus("✅ 滚动完成，正在解析数据...");
+    // 根据是否被停止显示不同提示
+    if (shouldStop) {
+        reportStatus("⏹ 已停止滚动，正在解析当前数据...");
+    } else {
+        reportStatus("✅ 滚动完成，正在解析数据...");
+    }
+
 
     // ---------------------------------------------------------
     // 2. 数据提取逻辑
     // ---------------------------------------------------------
     const videoElements = document.querySelectorAll('ytd-rich-grid-media');
     const videos = [];
+    
+    // 确定要处理的视频数量
+    const totalToProcess = maxVideos > 0 ? Math.min(maxVideos, videoElements.length) : videoElements.length;
 
-    videoElements.forEach(video => {
+    for (let i = 0; i < totalToProcess; i++) {
+        const video = videoElements[i];
         try {
             // 2.1 基础信息
             const titleElement = video.querySelector('#video-title');
@@ -189,7 +233,8 @@ async function scrapeYouTubeVideos() {
         } catch (e) {
             console.error("解析单个视频失败:", e);
         }
-    });
+    }
+
 
     // ---------------------------------------------------------
     // 3. 发送结果回 Popup

@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const btnStart = document.getElementById('btn-start');
+    const btnStop = document.getElementById('btn-stop');
     const btnCopy = document.getElementById('btn-copy');
     const btnCopyUrls = document.getElementById('btn-copy-urls');
     const statusDiv = document.getElementById('status');
@@ -10,10 +11,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterSelect = document.getElementById('filter-select');
     const resultCount = document.getElementById('result-count');
     const controlsBar = document.getElementById('controls-bar');
+    const maxVideosInput = document.getElementById('max-videos');
 
     // 存储原始数据
     let allVideos = [];
     let jsonData = null; // 存储原始JSON用于复制
+
+    // 加载保存的设置
+    const savedMaxVideos = localStorage.getItem('maxVideos');
+    if (savedMaxVideos !== null) {
+        maxVideosInput.value = savedMaxVideos;
+    }
+
+    // 保存设置当输入改变时
+    maxVideosInput.addEventListener('change', () => {
+        localStorage.setItem('maxVideos', maxVideosInput.value);
+    });
 
     // JSON 语法高亮函数
     function highlightJSON(json) {
@@ -188,12 +201,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // 更新状态
             statusDiv.textContent = `✅ 完成！共抓取 ${data.length} 个视频。`;
             btnStart.disabled = false;
+            btnStart.style.display = "inline-block"; // 显示开始按钮
+            btnStop.style.display = "none"; // 隐藏停止按钮
+            btnStop.disabled = false; // 恢复停止按钮状态
             btnStart.textContent = "重新抓取";
             btnCopy.style.display = "block";
         }
         else if (request.action === "scrape_error") {
             statusDiv.textContent = `❌ 错误: ${request.message}`;
             btnStart.disabled = false;
+            btnStart.style.display = "inline-block";
+            btnStop.style.display = "none";
+            btnStop.disabled = false;
+            btnStart.textContent = "开始抓取";
         }
     });
 
@@ -207,6 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         btnStart.disabled = true;
+        btnStart.style.display = "none"; // 隐藏开始按钮
+        btnStop.style.display = "inline-block"; // 显示停止按钮
         btnStart.textContent = "抓取中...";
         statusDiv.textContent = "正在初始化脚本...";
         jsonContainer.innerHTML = ""; // 清空JSON显示
@@ -218,11 +240,34 @@ document.addEventListener('DOMContentLoaded', () => {
         allVideos = []; // 清空数据
         jsonData = null; // 清空JSON数据
 
-        // 向 content script 发送开始命令
-        chrome.tabs.sendMessage(tab.id, { action: "start_scrape" }).catch((error) => {
+        // 读取并验证数量限制
+        let maxVideos = parseInt(maxVideosInput.value) || 0;
+        if (maxVideos < 0) {
+            maxVideos = 0;
+            maxVideosInput.value = 0;
+        }
+
+        // 向 content script 发送开始命令（包含数量限制）
+        chrome.tabs.sendMessage(tab.id, { 
+            action: "start_scrape",
+            maxVideos: maxVideos
+        }).catch((error) => {
             statusDiv.textContent = "⚠️ 连接失败，请刷新页面后重试。";
             btnStart.disabled = false;
             console.error(error);
+        });
+    });
+
+    // 点击停止按钮
+    btnStop.addEventListener('click', async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        
+        btnStop.disabled = true;
+        statusDiv.textContent = "⏹ 正在停止抓取...";
+        
+        // 发送停止消息到 content script
+        chrome.tabs.sendMessage(tab.id, { action: "stop_scrape" }).catch((error) => {
+            console.error("发送停止消息失败:", error);
         });
     });
 
