@@ -1,0 +1,12 @@
+{
+  "name": "youtube-channel-scraper",
+  "version": "1.2.0",
+  "description": "Chrome extension to scrape YouTube channel and playlist videos",
+  "scripts": {
+    "package": "mkdir -p dist && zip -r dist/youtube-scraper-v$(node -p \"require('./youtube-scraper-extension/manifest.json').version\").zip youtube-scraper-extension",
+    "release": "npm run package && echo '📦 Package created in dist/'"
+  },
+  "keywords": ["youtube", "scraper", "chrome-extension"],
+  "author": "",
+  "license": "MIT"
+}
