@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusDiv = document.getElementById('status');
     const jsonContainer = document.getElementById('json-container');
     const urlOutput = document.getElementById('url-output');
+    const csvOutput = document.getElementById('csv-output');
     const resultsList = document.getElementById('results-list');
     const sortSelect = document.getElementById('sort-select');
     const filterSelect = document.getElementById('filter-select');
@@ -115,6 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 更新 URL 列表视图
         const urls = videos.map(video => video.url).join('\n');
         urlOutput.value = urls;
+
+        // 更新 CSV 视图 (以逗号分隔，不换行)
+        const csvUrls = videos.map(video => video.url).join(',');
+        csvOutput.value = csvUrls;
 
         // 更新数量显示
         resultCount.textContent = `显示 ${videos.length} / ${allVideos.length} 个视频`;
@@ -244,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statusDiv.textContent = "正在初始化脚本...";
         jsonContainer.innerHTML = ""; // 清空JSON显示
         urlOutput.value = ""; // 清空URL列表
+        csvOutput.value = ""; // 清空CSV列表
         resultsList.innerHTML = '<div class="empty-state">正在抓取数据...</div>';
         btnCopy.style.display = "none";
         controlsBar.style.display = "none"; // 隐藏控制栏
@@ -297,6 +303,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (activeTab === 'urls') {
             // URL 列表格式
             contentToCopy = processedVideos.map(v => v.url).join('\n');
+        } else if (activeTab === 'csv') {
+            // CSV 格式
+            contentToCopy = processedVideos.map(v => v.url).join(',');
         }
 
         if (!contentToCopy) return;

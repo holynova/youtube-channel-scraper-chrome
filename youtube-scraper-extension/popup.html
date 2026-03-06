@@ -469,6 +469,7 @@
         <button class="tab-button active" data-tab="list">📋 列表视图</button>
         <button class="tab-button" data-tab="json">📄 JSON数据</button>
         <button class="tab-button" data-tab="urls">🔗 URL列表</button>
+        <button class="tab-button" data-tab="csv">📊 CSV格式</button>
     </div>
 
 
@@ -491,6 +492,11 @@
             <!-- 移除旧的按钮 -->
         </div>
         <textarea id="url-output" placeholder="URL列表将显示在这里..."></textarea>
+    </div>
+
+    <!-- CSV列表视图 -->
+    <div id="tab-csv" class="tab-content">
+        <textarea id="csv-output" placeholder="CSV格式将显示在这里..."></textarea>
     </div>
 
     <script src="popup.js"></script>
