@@ -353,4 +353,47 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // 标签页内的独立复制按钮
+    document.querySelectorAll('.btn-copy-tab').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            if (!processedVideos || processedVideos.length === 0) return;
+            
+            let contentToCopy = '';
+            const format = btn.getAttribute('data-format');
+            
+            if (format === 'json') {
+                contentToCopy = JSON.stringify(processedVideos, null, 2);
+            } else if (format === 'urls') {
+                contentToCopy = processedVideos.map(v => v.url).join('\n');
+            } else if (format === 'csv') {
+                contentToCopy = processedVideos.map(v => v.url).join(',');
+            }
+
+            if (!contentToCopy) return;
+
+            try {
+                await navigator.clipboard.writeText(contentToCopy);
+                const originalText = btn.textContent;
+                btn.textContent = "✅ 已复制！";
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            } catch (err) {
+                // 降级方法
+                const textarea = document.createElement('textarea');
+                textarea.value = contentToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                const originalText = btn.textContent;
+                btn.textContent = "✅ 已复制！";
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            }
+        });
+    });
 });

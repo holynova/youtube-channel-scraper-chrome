@@ -364,7 +364,7 @@
         /* JSON & URL Areas */
         #json-container, textarea {
             width: 100%;
-            height: 350px;
+            height: 310px; /* Reduced height to fit copy button */
             border: none;
             resize: none;
             font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
@@ -373,17 +373,11 @@
             padding: 12px;
             background: white;
             color: #24292e;
+            box-sizing: border-box;
+            overflow-y: auto;
         }
         
-        #url-output {
-            height: 300px; /* Reduced height to fit copy button */
-        }
-        
-        #tab-urls {
-            padding: 0;
-        }
-        
-        #tab-urls .button-container {
+        .tab-actions {
              padding: 8px;
              border-bottom: 1px solid var(--border-color);
              background: #fcfcfc;
@@ -391,15 +385,16 @@
              justify-content: flex-end;
         }
         
-        #btn-copy-urls {
+        .btn-copy-tab {
             font-size: 11px;
             padding: 4px 10px;
             background: white;
             border: 1px solid var(--border-color);
             color: var(--text-main);
+            font-weight: normal;
         }
         
-        #btn-copy-urls:hover {
+        .btn-copy-tab:hover {
             border-color: var(--primary-color);
             color: var(--primary-color);
         }
@@ -483,19 +478,25 @@
 
     <!-- JSON视图 -->
     <div id="tab-json" class="tab-content">
+        <div class="tab-actions">
+            <button class="btn-copy-tab" data-format="json">📋 一键复制 JSON</button>
+        </div>
         <div id="json-container"></div>
     </div>
 
     <!-- URL列表视图 -->
     <div id="tab-urls" class="tab-content">
-        <div class="button-container" style="display: none;">
-            <!-- 移除旧的按钮 -->
+        <div class="tab-actions">
+            <button class="btn-copy-tab" data-format="urls">📋 一键复制 URL</button>
         </div>
         <textarea id="url-output" placeholder="URL列表将显示在这里..."></textarea>
     </div>
 
     <!-- CSV列表视图 -->
     <div id="tab-csv" class="tab-content">
+        <div class="tab-actions">
+            <button class="btn-copy-tab" data-format="csv">📋 一键复制 CSV</button>
+        </div>
         <textarea id="csv-output" placeholder="CSV格式将显示在这里..."></textarea>
     </div>
 
