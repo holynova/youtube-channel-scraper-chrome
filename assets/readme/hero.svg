@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1200" height="360" viewBox="0 0 1200 360"
+     role="img" aria-labelledby="title desc">
+  <title id="title">YouTube 频道抓取器 — 一键抓取频道全部视频信息</title>
+  <desc id="desc">浅色标题：YouTube 频道抓取器，副标题一键抓取频道全部视频信息；右侧是一张视频列表卡片，三行视频各带红色播放缩略图，右下角一个 JSON 徽章。</desc>
+
+  <rect width="1200" height="360" rx="26" fill="#fafafa"/>
+
+  <g id="title-block" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <text x="56" y="62" font-size="19" letter-spacing="3" fill="#c00">CHROME EXTENSION · MANIFEST V3</text>
+    <text x="56" y="128" font-size="58" font-weight="700" fill="#0f0f0f">YouTube 频道抓取器</text>
+    <text x="56" y="168" font-size="23" fill="#0f0f0f">YOUTUBE CHANNEL SCRAPER — 一键抓取频道全部视频</text>
+    <text x="56" y="204" font-size="19" fill="#606060">自动滚动加载，导出 JSON / URL / CSV，支持播放列表。</text>
+    <g id="chips" font-size="18" fill="#0f0f0f" text-anchor="middle">
+      <g><rect x="56" y="238" width="140" height="36" rx="18" fill="#ffffff" stroke="#e5e5e5" stroke-width="1.5"/><text x="126" y="262">自动滚动抓取</text></g>
+      <g><rect x="208" y="238" width="140" height="36" rx="18" fill="#ffffff" stroke="#e5e5e5" stroke-width="1.5"/><text x="278" y="262">4 种导出格式</text></g>
+      <g><rect x="360" y="238" width="140" height="36" rx="18" fill="#ffffff" stroke="#e5e5e5" stroke-width="1.5"/><text x="430" y="262">排序 + 筛选</text></g>
+      <g><rect x="512" y="238" width="160" height="36" rx="18" fill="#ffffff" stroke="#e5e5e5" stroke-width="1.5"/><text x="592" y="262">频道与播放列表</text></g>
+    </g>
+  </g>
+
+  <g id="video-list">
+    <rect x="800" y="44" width="344" height="272" rx="16" fill="#ffffff" stroke="#e5e5e5" stroke-width="1.5"/>
+    <g id="rows">
+      <g>
+        <rect x="824" y="68" width="72" height="48" rx="8" fill="#ff0000"/>
+        <polygon points="852,82 852,102 868,92" fill="#ffffff"/>
+        <rect x="908" y="74" width="180" height="10" rx="5" fill="#d9d9d9"/>
+        <rect x="908" y="92" width="120" height="9" rx="4.5" fill="#e5e5e5"/>
+      </g>
+      <g>
+        <rect x="824" y="132" width="72" height="48" rx="8" fill="#ff0000"/>
+        <polygon points="852,146 852,166 868,156" fill="#ffffff"/>
+        <rect x="908" y="138" width="200" height="10" rx="5" fill="#d9d9d9"/>
+        <rect x="908" y="156" width="140" height="9" rx="4.5" fill="#e5e5e5"/>
+      </g>
+      <g>
+        <rect x="824" y="196" width="72" height="48" rx="8" fill="#ff0000"/>
+        <polygon points="852,210 852,230 868,220" fill="#ffffff"/>
+        <rect x="908" y="202" width="160" height="10" rx="5" fill="#d9d9d9"/>
+        <rect x="908" y="220" width="100" height="9" rx="4.5" fill="#e5e5e5"/>
+      </g>
+    </g>
+    <g id="json-badge" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">
+      <rect x="1024" y="264" width="96" height="36" rx="18" fill="#1a7a53"/>
+      <text x="1072" y="288">{ } JSON</text>
+    </g>
+    <g id="scroll-hint">
+      <line x1="830" y1="268" x2="830" y2="296" stroke="#c00" stroke-width="3" stroke-linecap="round"/>
+      <polygon points="830,302 822,290 838,290" fill="#c00"/>
+    </g>
+  </g>
+</svg>
